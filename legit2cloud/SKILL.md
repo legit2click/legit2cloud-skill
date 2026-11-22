@@ -23,7 +23,7 @@ description: >-
 
 # legit2cloud — one key, every kind of AI generation
 
-**Skill version: 2026.11.20.** The newest version is in `me` → `skill.latest_version` (and the
+**Skill version: 2026.11.22.** The newest version is in `me` → `skill.latest_version` (and the
 `X-L2C-Skill-Latest` header on every API response). If it is newer than this one, tell the user,
 read `skill.changes` (new features you don't know about yet), and update the skill: see
 "Keeping this skill current" below. `python scripts/l2c.py version` checks it for you.
@@ -101,6 +101,7 @@ platform:
 | **Music / soundtrack** | `--pipeline music_generate` | `{"prompt":"warm lo-fi piano","duration":30,"instrumental":true}` |
 | **Song with lyrics/vocals** | `--pipeline music_generate` | `{"prompt":"anthemic pop","lyrics":"[Verse]...","vocals":"female"}` |
 | **Voice / narration (cloned)** | `--pipeline voice_generate` | `{"text":"Welcome back to the show.","voice":"maple:happy"}` with a **saved voice** (see "A character's voice" below), or `{"text":"...","voice_sample":"<r2:// ref>","emotion":{"calm":0.6}}` |
+| **Voice in another language** (same voice, Spanish, Hindi and more) | `--pipeline voice_generate` + `language` | `{"text":"Hola, bienvenidos al programa.","voice":"maple","language":"es"}` — see "The same voice in another language" below |
 | **Sound effect** | `--pipeline sound_effects` | `{"text":"ocean waves on a rocky shore","seconds":6}` |
 | **Image** | `--pipeline image_generate` | `{"prompt":"a lighthouse at dawn, cinematic"}` |
 | **Image edit** | `--pipeline image_edit` | `{"prompt":"make it night, add fireflies"}` + `--input-image <url|key>` |
@@ -241,6 +242,39 @@ python scripts/l2c.py run --pipeline voice_generate --input '{"voice":"maple:hap
 - Raw API: `POST /voices {"name","sample"}`, `PUT /voices/:name/styles/:tone {"emotion"|"emotion_text"|"emotion_sample"}`,
   `POST /voices/:name/audition`, then `POST /jobs {"pipeline":"voice_generate","inputData":{"voice":"maple:happy","text":"..."}}`
   (details in references/api.md).
+
+### The same voice in another language (`language`)
+
+A voice line is read as English unless you say otherwise. To have the same voice speak another
+language, write the text in that language and send `language`:
+
+```bash
+python scripts/l2c.py run --pipeline voice_generate \
+    --input '{"voice":"maple","language":"es","text":"Hola, bienvenidos al programa."}' -o hola.wav
+# several lines, one file each:
+python scripts/l2c.py submit --pipeline voice_generate \
+    --input '{"voice_sample":"<r2:// ref>","language":"hi","texts":["पहली पंक्ति।","दूसरी पंक्ति।"]}'
+```
+
+- **Languages.** Tested by us: Spanish (`es`) and Hindi (`hi`). Also accepted, not yet tested by us:
+  `ar da de el fi fr it ja ko ms nl no pl pt sv sw tr`. A regional code (`es-MX`) or a name
+  (`"Spanish"`) works too. Anything else is refused at once (HTTP 400, with the list); nothing is
+  queued or charged.
+- **It does not translate.** Send text already in that language. `chat` translates well
+  (`python scripts/l2c.py chat "Translate into Spanish, for a voice actor to read aloud: ..."`);
+  check names and numbers yourself, and write numbers and brand names the way they should be said.
+- **One language per job.** A different language is a different job. `texts` still gives one file
+  per line, in order.
+- **900 characters per line** in these languages (English and Chinese have no such limit). Split
+  longer text into `texts` lines; a longer line is refused with a 400 that says so.
+- **Tones and emotion settings do not apply** in these languages. A saved voice still gives the
+  recording and the seed, so the same line comes out the same way; its tone (`maple:happy`) and any
+  `emotion` field are left out, and the job's result lists them under `params.ignored`.
+- **Slower than English.** A short line takes a minute or two, plus any wait in the queue.
+- The voice sample can be in any language. A little of its accent can carry into the new one.
+- Translated lines usually run longer than the English. If the audio has to fit a fixed length
+  (dubbing a video), shorten the translation rather than speeding the audio up.
+- Priced like any voice line (per 1,000 characters; see `me`).
 
 > Not every key has every pipeline. If `me` doesn't list what the user wants (e.g.
 > `full_clip` or `podcast_gen`), tell them to enable it on their plan at the
@@ -407,7 +441,7 @@ and join the two clips with ffmpeg.
 
 ## Keeping this skill current
 
-This bundle is versioned (`VERSION`, `CHANGELOG.md`; this copy is **2026.11.20**). The platform
+This bundle is versioned (`VERSION`, `CHANGELOG.md`; this copy is **2026.11.22**). The platform
 adds features faster than an installed skill learns about them, so check:
 
 ```bash
@@ -418,7 +452,7 @@ python scripts/l2c.py version   # installed vs newest + what changed; no key nee
   `[l2c] a newer skill is out ...` on stderr when there is one. When you see that, tell the user.
 - Calling the API directly: `GET /skill` (no key) returns `{version, download_url, changes}`;
   every response carries `X-L2C-Skill-Latest`, and `me` → `skill` says whether you are current.
-  Send `X-L2C-Skill: legit2cloud/2026.11.20` so the answers are about your copy.
+  Send `X-L2C-Skill: legit2cloud/2026.11.22` so the answers are about your copy.
 - Update = download https://legit2compute.com/developers/skill.zip and unzip it over this
   folder (same command as the install). Don't update it silently in the middle of someone's job:
   say so, and do it between tasks.
