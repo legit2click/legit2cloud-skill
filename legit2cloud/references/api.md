@@ -132,6 +132,25 @@ POST /jobs { "pipeline": "voice_generate", "inputData": { "voice": "maple:happy"
 `voice` replaces `voice_sample`, `seed` and the emotion fields (an explicit `seed` or emotion field you
 send still wins). One tone per job; every line in `texts` comes back as its own file.
 
+### `language` on a voice job
+```json
+POST /jobs { "pipeline": "voice_generate",
+             "inputData": { "voice": "maple", "language": "es", "texts": ["Hola.", "Bienvenidos al programa."] } }
+```
+`language` is the language the text is WRITTEN in (nothing is translated). Left out, `"en"`, `"zh"` or
+`"auto"`: the line is read as before. Other accepted values: `es`, `hi` (tested), and `ar da de el fi fr it ja ko
+ms nl no pl pt sv sw tr` (accepted, not yet tested by us); a regional code (`es-MX`) or an English name
+(`"Spanish"`) normalises to these. One language per job.
+
+| Case | Answer |
+|---|---|
+| any other language | `400` `language 'xx' is not supported for voice. Supported: en, zh, ar, …` — nothing queued or charged |
+| a line over 900 characters in a non-English, non-Chinese language | `400` `a line in language 'es' can be at most 900 characters (this one is N). Split the text into shorter lines with "texts": [...]` |
+| `emotion`, `emotion_text`, `emotion_audio` or a tone (`maple:happy`) with such a language | accepted; not applied; listed in the finished job's `output_data.params.ignored` |
+
+The finished job's `output_data` carries `language` (as sent) and `params.language` (the normalised code).
+These lines take longer than English ones: allow a minute or two for a short line.
+
 ## GET /jobs   (list your jobs)
 Query: `?status=&externalId=&limit=` (default 50, max 500). Returns
 `{ "jobs": [ { job_id, pipeline_slug, title, status, progress, current_stage,
