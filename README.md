@@ -14,9 +14,31 @@ python legit2cloud/scripts/l2c.py cartoon --video dinner.mp4 -o turkey.mp4
 
 ## Install
 
+**Claude Code plugin** (updates with `/plugin marketplace update`):
+
+```
+/plugin marketplace add legit2click/legit2cloud-skill
+/plugin install legit2cloud@legit2cloud
+```
+
+**One line** (installs into Claude Code, plus Hermes Agent and OpenClaw if you have them; run again to update):
+
+```bash
+curl -fsSL https://legit2compute.com/install-skill.sh | sh
+```
+
+Windows PowerShell: `irm https://legit2compute.com/install-skill.ps1 | iex`
+
+**By hand:**
+
 ```bash
 git clone https://github.com/legit2click/legit2cloud-skill
 cp -r legit2cloud-skill/legit2cloud ~/.claude/skills/
+```
+
+Then give your agent the key:
+
+```bash
 export L2C_API_KEY=l2ck_...   # from https://legit2compute.com/developers/signup
 ```
 
