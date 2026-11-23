@@ -1,0 +1,16 @@
+{
+  "name": "legit2cloud",
+  "description": "The legit2cloud agent skill: images, video, music, voice, sound effects and hosted language models on one API key.",
+  "owner": { "name": "legit2cloud", "url": "https://legit2compute.com/docs" },
+  "plugins": [
+    {
+      "name": "legit2cloud",
+      "source": "./legit2cloud",
+      "description": "Make images, video (incl. vertical Shorts), music, cloned voiceovers, sound effects, clips, articles and podcasts, and call hosted open LLMs, with one legit2cloud API key (L2C_API_KEY).",
+      "version": "2026.11.22",
+      "category": "media",
+      "tags": ["image-generation", "video-generation", "music", "text-to-speech", "voice-cloning", "llm", "openai-compatible", "shorts"],
+      "homepage": "https://legit2compute.com/agent-skill"
+    }
+  ]
+}
